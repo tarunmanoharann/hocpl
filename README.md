@@ -4,7 +4,7 @@ A face tracking web application built using **Next.js** with **TypeScript** and 
 
 ## Demo
 
-![Demo Video](./video/demo1.mp4)
+![Demo Video](https://github.com/tarunmanoharann/hocpl/blob/main/video/demo1.mkv)
 
 ## Features
 
