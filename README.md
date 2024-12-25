@@ -2,6 +2,10 @@
 
 A face tracking web application built using **Next.js** with **TypeScript** and **TailwindCSS**. This app integrates **face-api.js** for real-time face detection and landmarks rendering, combined with video recording functionality. The recorded video includes both the face detection overlay and the original video feed.
 
+## Demo
+
+![Demo Video](./video/demo1.mp4)
+
 ## Features
 
 - **Face Detection**: Real-time face detection and landmarks rendering using `face-api.js`.
