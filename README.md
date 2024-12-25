@@ -4,7 +4,7 @@ A face tracking web application built using **Next.js** with **TypeScript** and 
 
 ## Demo
 
-![Demo Video](./video/demo1.mp4)
+[Watch Demo](https://vimeo.com/1042158156?share=copy)
 
 ## Features
 
@@ -23,12 +23,14 @@ A face tracking web application built using **Next.js** with **TypeScript** and 
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd <repository-name>
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -36,6 +38,7 @@ A face tracking web application built using **Next.js** with **TypeScript** and 
    ```
 
 3. Run the development server:
+
    ```bash
    npm run dev
    # or
