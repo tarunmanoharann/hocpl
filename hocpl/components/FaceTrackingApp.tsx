@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Camera, StopCircle, Download } from 'lucide-react';
-import * as faceapi from 'face-api.js';
-import { cn } from '@/lib/utils';
+import React, { useRef, useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Camera, StopCircle, Download } from "lucide-react";
+import * as faceapi from "face-api.js";
+import { cn } from "@/lib/utils";
 
 interface VideoData {
   url: string;
@@ -31,19 +31,19 @@ export default function FaceTrackingApp() {
       try {
         setIsModelLoading(true);
         setLoadingError(null);
-        const MODEL_URL = '/weights';
+        const MODEL_URL = "/weights";
         await Promise.all([
           faceapi.nets.tinyFaceDetector.load(MODEL_URL),
           faceapi.nets.faceLandmark68Net.load(MODEL_URL),
-          faceapi.nets.faceExpressionNet.load(MODEL_URL)
+          faceapi.nets.faceExpressionNet.load(MODEL_URL),
         ]);
         await initializeCamera();
         setIsModelLoading(false);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
         setLoadingError(`Failed to load face detection models: ${errorMessage}`);
         setIsModelLoading(false);
-        console.error('Model loading error:', err);
+        console.error("Model loading error:", err);
       }
     };
 
@@ -59,18 +59,18 @@ export default function FaceTrackingApp() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
+          facingMode: "user",
           width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
+          height: { ideal: 720 },
+        },
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
       setLoadingError(`Failed to access camera: ${errorMessage}. Please make sure camera permissions are granted.`);
-      console.error('Camera initialization error:', err);
+      console.error("Camera initialization error:", err);
     }
   };
 
@@ -98,24 +98,26 @@ export default function FaceTrackingApp() {
           .withFaceLandmarks()
           .withFaceExpressions();
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         if (detections.length > 0) {
           const dims = {
             width: video.videoWidth,
-            height: video.videoHeight
+            height: video.videoHeight,
           };
           const resizedDetections = faceapi.resizeResults(detections, dims);
 
           faceapi.draw.drawDetections(canvas, resizedDetections);
           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-          resizedDetections.forEach(detection => {
+          resizedDetections.forEach((detection) => {
             const box = detection.detection.box;
             const drawBox = new faceapi.draw.DrawBox(box, {
               lineWidth: 2,
-              boxColor: "rgba(0, 255, 0, 0.8)"
+              boxColor: "rgba(0, 255, 0, 0.8)",
             });
             drawBox.draw(canvas);
           });
@@ -123,8 +125,7 @@ export default function FaceTrackingApp() {
 
         requestAnimationFrame(detectFaces);
       } catch (err) {
-        console.error('Face detection error:', err);
-        // Continue the detection loop even if there's an error
+        console.error("Face detection error:", err);
         requestAnimationFrame(detectFaces);
       }
     };
@@ -133,22 +134,13 @@ export default function FaceTrackingApp() {
   };
 
   const startRecording = () => {
-    if (!videoRef.current?.srcObject) return;
-    
-    const stream = videoRef.current.srcObject as MediaStream;
-    const canvas = canvasRef.current;
-    const compositeStream = new MediaStream();
-    
-    if (canvas) {
-      const canvasStream = canvas.captureStream();
-      stream.getVideoTracks().forEach(track => compositeStream.addTrack(track));
-      canvasStream.getVideoTracks().forEach(track => compositeStream.addTrack(track));
-    }
+    if (!videoRef.current?.srcObject || !canvasRef.current) return;
 
-    const mediaRecorder = new MediaRecorder(compositeStream, {
-      mimeType: 'video/webm;codecs=vp9'
+    const canvasStream = canvasRef.current.captureStream();
+    const mediaRecorder = new MediaRecorder(canvasStream, {
+      mimeType: "video/webm;codecs=vp9",
     });
-    
+
     const chunks: Blob[] = [];
     mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -157,20 +149,20 @@ export default function FaceTrackingApp() {
     };
 
     mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
+      const blob = new Blob(chunks, { type: "video/webm" });
       const url = URL.createObjectURL(blob);
       const timestamp = Date.now();
-      
+
       setRecordedVideo({ blob, url, timestamp });
-      
+
       const videoData: VideoData = {
         url,
         timestamp,
-        name: `face-tracking-${timestamp}.webm`
+        name: `face-tracking-${timestamp}.webm`,
       };
-      
-      const savedVideos = JSON.parse(localStorage.getItem('recordedVideos') || '[]');
-      localStorage.setItem('recordedVideos', JSON.stringify([...savedVideos, videoData]));
+
+      const savedVideos = JSON.parse(localStorage.getItem("recordedVideos") || "[]");
+      localStorage.setItem("recordedVideos", JSON.stringify([...savedVideos, videoData]));
     };
 
     mediaRecorderRef.current = mediaRecorder;
@@ -187,7 +179,7 @@ export default function FaceTrackingApp() {
 
   const downloadVideo = () => {
     if (recordedVideo) {
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = recordedVideo.url;
       a.download = `face-tracking-${recordedVideo.timestamp}.webm`;
       document.body.appendChild(a);
