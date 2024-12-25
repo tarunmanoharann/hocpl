@@ -4,7 +4,8 @@ A face tracking web application built using **Next.js** with **TypeScript** and 
 
 ## Demo
 
-[Watch Demo](https://vimeo.com/1042158156?share=copy)
+<iframe width="560" height="315" src="https://vimeo.com/1042158156?share=copy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 ## Features
 
