@@ -39,9 +39,11 @@ export default function FaceTrackingApp() {
         ]);
         await initializeCamera();
         setIsModelLoading(false);
-      } catch (error) {
-        setLoadingError('Failed to load face detection models. Please refresh the page.');
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        setLoadingError(`Failed to load face detection models: ${errorMessage}`);
         setIsModelLoading(false);
+        console.error('Model loading error:', err);
       }
     };
 
@@ -65,8 +67,10 @@ export default function FaceTrackingApp() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (error) {
-      setLoadingError('Failed to access camera. Please make sure camera permissions are granted.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      setLoadingError(`Failed to access camera: ${errorMessage}. Please make sure camera permissions are granted.`);
+      console.error('Camera initialization error:', err);
     }
   };
 
@@ -88,35 +92,41 @@ export default function FaceTrackingApp() {
     const detectFaces = async () => {
       if (!video || !canvas) return;
 
-      const detections = await faceapi
-        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks()
-        .withFaceExpressions();
+      try {
+        const detections = await faceapi
+          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceExpressions();
 
-      const ctx = canvas.getContext('2d');
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        const ctx = canvas.getContext('2d');
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (detections.length > 0) {
-        const dims = {
-          width: video.videoWidth,
-          height: video.videoHeight
-        };
-        const resizedDetections = faceapi.resizeResults(detections, dims);
+        if (detections.length > 0) {
+          const dims = {
+            width: video.videoWidth,
+            height: video.videoHeight
+          };
+          const resizedDetections = faceapi.resizeResults(detections, dims);
 
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+          faceapi.draw.drawDetections(canvas, resizedDetections);
+          faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-        resizedDetections.forEach(detection => {
-          const box = detection.detection.box;
-          const drawBox = new faceapi.draw.DrawBox(box, {
-            lineWidth: 2,
-            boxColor: "rgba(0, 255, 0, 0.8)"
+          resizedDetections.forEach(detection => {
+            const box = detection.detection.box;
+            const drawBox = new faceapi.draw.DrawBox(box, {
+              lineWidth: 2,
+              boxColor: "rgba(0, 255, 0, 0.8)"
+            });
+            drawBox.draw(canvas);
           });
-          drawBox.draw(canvas);
-        });
-      }
+        }
 
-      requestAnimationFrame(detectFaces);
+        requestAnimationFrame(detectFaces);
+      } catch (err) {
+        console.error('Face detection error:', err);
+        // Continue the detection loop even if there's an error
+        requestAnimationFrame(detectFaces);
+      }
     };
 
     detectFaces();

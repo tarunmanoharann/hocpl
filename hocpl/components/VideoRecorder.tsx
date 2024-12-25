@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, Video, StopCircle, Download } from 'lucide-react';
+import { Camera, StopCircle } from 'lucide-react';
 
 interface VideoRecorderProps {
   onRecordingStart?: () => void;
